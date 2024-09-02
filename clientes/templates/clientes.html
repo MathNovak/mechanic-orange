@@ -9,17 +9,17 @@
 <div class="container">
     <div class="row">
 
-        <div class="col-md card-dashboard">
+        <div class="col-md card-dashboard" onclick="exibir_form('1')">
             <p class="text-card">Adicionar clientes</p>
         </div>
 
-        <div class="col-md card-dashboard">
+        <div class="col-md card-dashboard" onclick="exibir_form('2')">
             <p class="text-card">Atualizar cliente</p>
         </div>
 
     </div>
 
-        <div class="adicionar-cliente">
+        <div id="add-cliente" class="adicionar-cliente">
             <form action="{% url 'clientes'%} " method="post">
                 {% csrf_token %}
                 <div class="row">
@@ -44,7 +44,19 @@
                     <span class="btn-add-carros" onclick="add_carro()">+ Adicionar um carro</span>
     
                     <div id="form-carro">
-    
+                        
+                        {% for carro, placa in carros %}
+                            <br>
+                            <div class="row">
+                                <div class="col-md">
+                                    <input type='text' placeholder='Carro' class='form-control' name='carro' value="{{carro}}">
+                                </div>
+                                <div class="col-md">
+                                    <input type='text' placeholder='Placa' class='form-control' name='placa' value="{{placa}}">
+                                </div>
+                            </div>
+                        {% endfor %}
+
                     </div>
     
                 </div>
@@ -55,6 +67,40 @@
             </form>
             
         </div>
+
+        <div id="att_cliente">
+
+            <p></p>
+            
+            <select id="cliente-select" onchange="dados_cliente()" class="form-control" name="" id="">
+                <option value=""></option>
+                {% for cliente in clientes %}
+                <option value="{{cliente.id}}">{{cliente.nome}}</option>
+                {% endfor %}
+            </select>
+            <br>
+            <hr>
+
+            <div id="form-att-cliente">
+                <input type="hidden" id="id">
+                    <p>Nome:</p>
+                    <input id="nome" type="text" class='form-control'>
+                    <p>Sobrenome:</p>
+                    <input id="sobrenome" type="text" class='form-control'>
+                    <p>E-mail:</p>
+                    <input id="email" type="text" class='form-control'>
+                    <p>CPF:</p>
+                    <input id="cpf" type="text" class='form-control'>
+                    <hr>
+                    <h3>Carros</h3>
+                    <div id="carros">
+                        
+                    </div>
+            </div>
+
+        </div>
+
+        
 
 </div>
 

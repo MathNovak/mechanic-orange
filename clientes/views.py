@@ -1,11 +1,18 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from .models import Cliente, Carro
 import re
+from django.core import serializers
+import json
+from django.views.decorators.csrf import csrf_exempt
+from django.urls import reverse
+from django.shortcuts import redirect
+
 
 def clientes(request):
     if request.method == "GET":
-        return render(request, 'clientes.html')
+        clientes_list = Cliente.objects.all()
+        return render(request, 'clientes.html', {'clientes': clientes_list})
     elif request.method == "POST":
         nome = request.POST.get('nome')
         sobrenome = request.POST.get('sobrenome')
@@ -16,9 +23,9 @@ def clientes(request):
 
         cliente = Cliente.objects.filter(cpf=cpf)
         if cliente.exists():
-            return render(request, 'clientes.html', {'nome': nome, 'sobrenome': sobrenome, 'email':email})
+            return render(request, 'clientes.html', {'nome': nome, 'sobrenome': sobrenome, 'email':email, 'carros': zip(carros, placas)})
         if not re.fullmatch(re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'), email):
-            return render(request, 'clientes.html', {'nome': nome, 'sobrenome': sobrenome, 'cpf':cpf})
+            return render(request, 'clientes.html', {'nome': nome, 'sobrenome': sobrenome, 'cpf':cpf, 'carros': zip(carros, placas)})
 
         cliente = Cliente(
             nome = nome,
@@ -32,7 +39,46 @@ def clientes(request):
         for carro, placa in zip(carros, placas):
             car = Carro(carro=carro, placa=placa, cliente=cliente)
             car.save()
-            print(carro, placa)
+            
         
 
         return HttpResponse('teste')
+    
+def att_cliente(request):
+    id_cliente = request.POST.get('id_cliente')
+    cliente = Cliente.objects.filter(id=id_cliente)
+    carros = Carro.objects.filter(cliente=cliente[0])
+
+    cliente_json = json.loads(serializers.serialize('json', cliente))[0]['fields']
+    carros_json = json.loads(serializers.serialize('json', carros))
+    carros_json = [{'fields': carro['fields'], 'id': carro['pk']}for carro in carros_json]
+
+    data = {'cliente': cliente_json, 'carros': carros_json}
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def update_carro(request, id):
+    nome_carro = request.POST.get('carro')
+    placa = request.POST.get('placa')
+
+    carro = Carro.objects.get(id=id)
+    list_carros = Carro.objects.filter(placa=placa).exclude(id=id)
+    
+    if list_carros.exists():
+        return HttpResponse('Placa ja existente')
+    
+    carro.carro = nome_carro
+    carro.placa = placa
+    carro.save()
+
+    return HttpResponse("dados alterados com sucesso")
+
+def excluir_carro(request, id):
+    try:
+        carro = Carro.objects.get(id=id)
+        carro.delete()
+        return redirect(reverse('clientes')+f'?aba=att_cliente&id_cliente={id}')
+    except:
+        return redirect(reverse('clientes')+f'?aba=att_cliente&id_cliente={id}')
