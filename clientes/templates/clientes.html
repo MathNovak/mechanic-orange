@@ -19,6 +19,8 @@
 
     </div>
 
+        
+
         <div id="add-cliente" class="adicionar-cliente">
             <form action="{% url 'clientes'%} " method="post">
                 {% csrf_token %}
@@ -91,7 +93,19 @@
                     <input id="email" type="text" class='form-control'>
                     <p>CPF:</p>
                     <input id="cpf" type="text" class='form-control'>
-                    <hr>
+                    <br>
+                    <input onclick="update_cliente()" type="submit" value="salvar" class="btn btn-success">
+                    
+
+                    <hr style="background-color: gray;">
+                    <br>
+                    {% if messages %}
+                    {% for m in messages %}
+                        <div class="alert alert-warning" role="alert">
+                        {{ m }}
+                        </div>
+                    {% endfor %}
+                    {% endif %}
                     <h3>Carros</h3>
                     <div id="carros">
                         

@@ -46,6 +46,10 @@ function dados_cliente(){
 
         document.getElementById('form-att-cliente').style.display = 'block'
 
+        id = document.getElementById('id')
+        id.value = data['cliente_id'] 
+
+
         nome = document.getElementById('nome')
         nome.value = data['cliente']['nome']
 
@@ -63,7 +67,7 @@ function dados_cliente(){
 
         div_carros.innerHTML = ""
 
-        for(i=0; i<data['carros'].length; i++){ // ep #4
+        for(i=0; i<data['carros'].length; i++){
 
             console.log(data['carros'][i]['fields']['carro']) 
 
@@ -76,7 +80,7 @@ function dados_cliente(){
                             <input class='form-control' name='placa' type='text' value='" + data['carros'][i]['fields']['placa'] + "'>\
                         </div>\
                         <div class='col-md'>\
-                            <input class='btn btn-lg btn-success' type='submit' value='Salvar'>\
+                            <input class='btn btn-lg btn-success' type='submit' value='Submeter pedido'>\
                         </div>\
                     </form>\
                     <div class='col-md'>\
@@ -87,6 +91,34 @@ function dados_cliente(){
         }
 
 
+    })
+
+}
+
+function update_cliente(){
+    nome = document.getElementById('nome').value
+    sobrenome = document.getElementById('sobrenome').value
+    email = document.getElementById('email').value
+    cpf = document.getElementById('cpf').value
+    id = document.getElementById('id').value
+
+    fetch('/clientes/update_cliente/' + id, {
+        method: 'POST', 
+        headers: {
+            'X-CSRFToken': csrf_token,
+        },
+        body: JSON.stringify({
+            nome: nome,
+            sobrenome: sobrenome,
+            email: email,
+            cpf: cpf,
+        })
+
+    }).then(function(result){
+        return result.json()
+    }).then(function(data){
+
+        console.log(data)
     })
 
 }
