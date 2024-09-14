@@ -7,9 +7,12 @@
 
 {% block 'dashboard' %}
 
+    
     <br>
     <br>
     <div class="container">
+        <h1>Serviços</h1>
+        <br>
         <form action="{% url 'novo_servico' %}" method="post">{% csrf_token %}
             {{ form.as_p }}
 
